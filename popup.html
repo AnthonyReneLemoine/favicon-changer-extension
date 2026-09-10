@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --bg2: #16213e;
+    --bg3: #0f3460;
+    --accent: #e94560;
+    --accent2: #ff6b6b;
+    --text: #eaeaea;
+    --text2: #a0a0b8;
+    --border: #2a2a4a;
+    --radius: 8px;
+    --success: #53d769;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 380px;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, var(--bg2), var(--bg3));
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header svg { flex-shrink: 0; }
+  .header h1 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .3px;
+  }
+  .header .version {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--text2);
+    background: var(--border);
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+  }
+  .tab:hover { color: var(--text); background: rgba(255,255,255,.03); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* Panels */
+  .panel { display: none; padding: 16px; }
+  .panel.active { display: block; }
+
+  /* Current page info */
+  .page-info {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--border);
+  }
+  .page-info img {
+    width: 32px; height: 32px;
+    border-radius: 4px;
+    background: var(--border);
+  }
+  .page-info .info {
+    flex: 1;
+    overflow: hidden;
+  }
+  .page-info .title {
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .page-info .url {
+    font-size: 11px;
+    color: var(--text2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .page-info .badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  /* Scope selector */
+  .scope-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .scope-btn {
+    flex: 1;
+    padding: 8px;
+    font-size: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    color: var(--text2);
+    cursor: pointer;
+    text-align: center;
+    transition: all .2s;
+  }
+  .scope-btn:hover { border-color: var(--accent); color: var(--text); }
+  .scope-btn.active {
+    border-color: var(--accent);
+    background: rgba(233,69,96,.12);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(233,69,96,.06);
+  }
+  .upload-zone input { display: none; }
+  .upload-zone .icon { font-size: 24px; margin-bottom: 6px; }
+  .upload-zone .hint { font-size: 11px; color: var(--text2); }
+
+  /* URL input */
+  .url-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .url-row input {
+    flex: 1;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+  }
+  .url-row input:focus { border-color: var(--accent); }
+  .url-row button {
+    padding: 8px 14px;
+    border-radius: var(--radius);
+    border: none;
+    background: var(--bg3);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .url-row button:hover { background: var(--accent); }
+
+  /* Preview */
+  .preview-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    min-height: 48px;
+  }
+  .preview-img {
+    width: 48px; height: 48px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    object-fit: contain;
+  }
+  .preview-label { font-size: 12px; color: var(--text2); }
+
+  /* Buttons */
+  .btn-primary {
+    width: 100%;
+    padding: 10px;
+    border-radius: var(--radius);
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+  .btn-primary:hover { opacity: .88; }
+  .btn-primary:disabled {
+    opacity: .4;
+    cursor: default;
+  }
+  .btn-danger {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 7px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 11px;
+  }
+  .btn-danger:hover { background: rgba(233,69,96,.12); }
+
+  /* Rules list */
+  .rules-list { max-height: 300px; overflow-y: auto; }
+  .rule-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 6px;
+    background: var(--bg2);
+  }
+  .rule-item img {
+    width: 24px; height: 24px;
+    border-radius: 4px;
+    background: var(--border);
+  }
+  .rule-item .rule-info { flex: 1; overflow: hidden; }
+  .rule-item .rule-label {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .rule-item .rule-type {
+    font-size: 10px;
+    color: var(--text2);
+  }
+  .rule-item .rule-del {
+    background: none;
+    border: none;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .rule-item .rule-del:hover { color: var(--accent); background: rgba(233,69,96,.12); }
+
+  .empty-state {
+    text-align: center;
+    padding: 30px 10px;
+    color: var(--text2);
+    font-size: 12px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--success);
+    color: #111;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: transform .3s ease;
+    z-index: 999;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Bookmark panel */
+  .bm-search {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+    margin-bottom: 10px;
+  }
+  .bm-search:focus { border-color: var(--accent); }
+  .bm-list { max-height: 260px; overflow-y: auto; }
+  .bm-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background .15s;
+  }
+  .bm-item:hover { background: rgba(255,255,255,.05); }
+  .bm-item img { width: 18px; height: 18px; border-radius: 3px; }
+  .bm-item span {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 8px 16px;
+    text-align: center;
+  }
+  .footer a {
+    font-size: 11px;
+    color: var(--text2);
+    text-decoration: none;
+  }
+  .footer a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="3"/>
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M3 12h4M17 12h4M12 3v4M12 17v4"/>
+  </svg>
+  <h1>Favicon Changer</h1>
+  <span class="version">v1.0.0</span>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" data-tab="page">Page / Domaine</button>
+  <button class="tab" data-tab="bookmarks">Favoris</button>
+  <button class="tab" data-tab="rules">Règles</button>
+</div>
+
+<!-- Panel: Page / Domain -->
+<div class="panel active" id="panel-page">
+  <div class="page-info">
+    <img id="currentFavicon" src="" alt="">
+    <div class="info">
+      <div class="title" id="pageTitle">—</div>
+      <div class="url" id="pageUrl">—</div>
+    </div>
+    <span class="badge" id="ruleStatus" style="display:none">Règle active</span>
+  </div>
+
+  <div class="scope-row">
+    <button class="scope-btn active" data-scope="page">Cette page</button>
+    <button class="scope-btn" data-scope="domain">Tout le domaine</button>
+  </div>
+
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="fileInput" accept="image/*">
+    <div class="icon">📁</div>
+    <div>Cliquer ou glisser une image</div>
+    <div class="hint">PNG, JPG, ICO, SVG, WebP</div>
+  </div>
+
+  <div class="url-row">
+    <input type="text" id="urlInput" placeholder="…ou coller l'URL d'une image">
+    <button id="urlLoad">Charger</button>
+  </div>
+
+  <div class="preview-row" id="previewRow" style="display:none">
+    <img class="preview-img" id="previewImg" src="" alt="">
+    <span class="preview-label">Nouveau favicon</span>
+  </div>
+
+  <button class="btn-primary" id="applyBtn" disabled>Appliquer le favicon</button>
+
+  <div style="margin-top:10px;text-align:center">
+    <button class="btn-danger" id="resetBtn" style="display:none">Supprimer la règle</button>
+  </div>
+</div>
+
+<!-- Panel: Bookmarks -->
+<div class="panel" id="panel-bookmarks">
+  <input class="bm-search" id="bmSearch" placeholder="Rechercher un favori…" type="text">
+  <div class="bm-list" id="bmList"></div>
+</div>
+
+<!-- Panel: Rules -->
+<div class="panel" id="panel-rules">
+  <div class="rules-list" id="rulesList"></div>
+  <div style="margin-top:10px;display:flex;gap:8px">
+    <button class="btn-danger" id="exportBtn" style="flex:1">Exporter JSON</button>
+    <button class="btn-danger" id="importBtn" style="flex:1">Importer JSON</button>
+    <input type="file" id="importFile" accept=".json" style="display:none">
+  </div>
+</div>
+
+<div class="footer">
+  <a href="#" id="optionsLink">Options avancées</a>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="utils.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>
